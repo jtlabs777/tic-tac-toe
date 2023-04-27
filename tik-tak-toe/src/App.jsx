@@ -8,65 +8,71 @@ function Square({value, onSquareClick}) {
 
 function calculateWinner(nSquare) {
    //check rows, [0, 1 , 2] [3, 4, 5] [ 6, 7 ,8]
-   let winner = "";
+   let theWinner = "";
 
-   if (nSquare[0] == nSquare[1] && nSquare[1] == nSquare[2] && nSquare[0] != null) winner = nSquare[0];
-   else if (nSquare[3] == nSquare[4] && nSquare[4] == nSquare[5] && nSquare[3] != null) winner = nSquare[3];
-   else if (nSquare[6] == nSquare[7] && nSquare[7] == nSquare[8] && nSquare[6] != null) winner = nSquare[6];
+   if (nSquare[0] == nSquare[1] && nSquare[1] == nSquare[2] && nSquare[0] != null) theWinner = nSquare[0];
+   else if (nSquare[3] == nSquare[4] && nSquare[4] == nSquare[5] && nSquare[3] != null) theWinner = nSquare[3];
+   else if (nSquare[6] == nSquare[7] && nSquare[7] == nSquare[8] && nSquare[6] != null) theWinner = nSquare[6];
   
    
  //check columns [0, 3, 6] [1, 4, 7] [2, 5, 8]
-   else if (nSquare[0] == nSquare[3] && nSquare[3] == nSquare[6] && nSquare[0] != null) winner = nSquare[0];
-   else if (nSquare[1] == nSquare[4] && nSquare[4] == nSquare[7] && nSquare[1] != null) winner = nSquare[1];
-   else if (nSquare[2] == nSquare[5] && nSquare[5] == nSquare[8] && nSquare[2] != null) winner = nSquare[2];
+   else if (nSquare[0] == nSquare[3] && nSquare[3] == nSquare[6] && nSquare[0] != null) theWinner = nSquare[0];
+   else if (nSquare[1] == nSquare[4] && nSquare[4] == nSquare[7] && nSquare[1] != null) theWinner = nSquare[1];
+   else if (nSquare[2] == nSquare[5] && nSquare[5] == nSquare[8] && nSquare[2] != null) theWinner = nSquare[2];
    //check diangonals [0, 4, 8] and [2, 4, 6]
-   else if (nSquare[0] == nSquare[4] && nSquare[4] == nSquare[8] && nSquare[0] != null) winner = nSquare[0];
-   else if (nSquare[2] == nSquare[4] && nSquare[4] == nSquare[6] && nSquare[2] != null) winner = nSquare[2];
+   else if (nSquare[0] == nSquare[4] && nSquare[4] == nSquare[8] && nSquare[0] != null) theWinner = nSquare[0];
+   else if (nSquare[2] == nSquare[4] && nSquare[4] == nSquare[6] && nSquare[2] != null) theWinner = nSquare[2];
 
 
-   if (winner != "")
-     return  winner + " WON!";
-
+   if (theWinner != "")
+     return  theWinner;
+   
+    return null;
 }
 
 export default function Board() {
   const [squares, setSquares] = useState(new Array(9).fill(null));
-  const [numberOfTurns, setNumberOfTurns] = useState(0);
+  const [xIsNext, setxIsNext] = useState(true);
   const [numOfClicksPerSquare, setNumberOfClicksPerSquare] = useState(new Array(9).fill(null))
-  const [winner, setWinner] = useState("");
+  let winner = calculateWinner(squares);
+  let status;
+  if (winner) {
+    status = "Winner: " + winner;
+  } else {
+    status = "Next player: " + (xIsNext ? "X" : "O");
+  }
 
   function handleClick (i) {
     const nextSquares = squares.slice();
     const numOfSquares = numOfClicksPerSquare.slice();
 
 
+    if(squares[i]) return; //logic to prevent square from being clicked
 
-
-    if (numOfSquares.find(n => n == i) == undefined) {
-
-    if(numberOfTurns % 2 == 0) {
+    if(xIsNext) {
+     
       nextSquares[i] = "X";
     } else {
       nextSquares[i] = "O";
     }
    
-     
+    
     
       numOfSquares.push(i);
       setNumberOfClicksPerSquare(numOfSquares);
-      setNumberOfTurns(numberOfTurns + 1);
+      setxIsNext(!xIsNext);
       setSquares(nextSquares);
-      setWinner(calculateWinner(nextSquares));
+
       if(winner) {
         return;
       }
-    }
+    
 
   }
 
   return (
     <>
-       <h1>{winner}</h1>
+       <h1>{status}</h1>
        <div className="board-row">
          <Square value={squares[0]} onSquareClick={() => handleClick(0)}/>
          <Square value={squares[1]} onSquareClick={() => handleClick(1)}/>
