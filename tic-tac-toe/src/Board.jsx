@@ -1,18 +1,17 @@
-import { useState } from "react";
+
 import useSound from "use-sound";
 import VictorySound from "./sound/winning-music.mp3";
 import Confetti from "react-confetti";
 import calculateWinner from "./CalculateWinner";
 import BoardRow from "./BoardRow";
 
-export default function Board() {
-  const [squares, setSquares] = useState(new Array(9).fill(null));
-  const [xIsNext, setxIsNext] = useState(true);
+export default function Board({xIsNext, squares, onPlay}) {
+
   const [playVictory] = useSound(VictorySound, { volume: 0.75 });
 
   let winner = calculateWinner(squares);
   let status;
-  let confetti = <noValue />;
+  let confetti = null;
 
   if (winner) {
     status = "Winner: " + winner;
@@ -32,9 +31,8 @@ export default function Board() {
     } else {
       nextSquares[i] = "O";
     }
-
-    setxIsNext(!xIsNext);
-    setSquares(nextSquares);
+    
+    onPlay(nextSquares);
   }
 
   return (
