@@ -1,10 +1,32 @@
 import { useState } from "react";
+import useSound from 'use-sound';
+import ClickSound from './sound/clickSound.mp3'
+import VictorySound from './sound/winning-music.mp3'
+import Confetti from 'react-confetti';
+
 
 function Square({value, onSquareClick}) {
+ 
+  const [playActive] = useSound(
+    ClickSound,
+    { volume: 0.75 }
+  );
 
 
-  return (<button className="square" onClick={onSquareClick}>{value}</button>);
+  return (
+  <>
+     
+    <button onMouseDown={playActive} className="square border border-5 border-white text-bg-dark" id="sqrButton" onClick={onSquareClick}>
+    {value}
+
+  </button>
+  </>
+
+  
+  );
 }
+
+
 
 function calculateWinner(nSquare) {
    //check rows, [0, 1 , 2] [3, 4, 5] [ 6, 7 ,8]
@@ -33,18 +55,27 @@ function calculateWinner(nSquare) {
 export default function Board() {
   const [squares, setSquares] = useState(new Array(9).fill(null));
   const [xIsNext, setxIsNext] = useState(true);
-  const [numOfClicksPerSquare, setNumberOfClicksPerSquare] = useState(new Array(9).fill(null))
+  const [playVictory] = useSound(
+    VictorySound,
+    { volume: 0.75 }
+  );
+  
+
   let winner = calculateWinner(squares);
   let status;
+  let confetti = <noValue/>;
+  let victorySound = <noValue/>
   if (winner) {
     status = "Winner: " + winner;
+    confetti = <Confetti/>;
+    playVictory();
+   
   } else {
     status = "Next player: " + (xIsNext ? "X" : "O");
   }
 
   function handleClick (i) {
     const nextSquares = squares.slice();
-    const numOfSquares = numOfClicksPerSquare.slice();
 
 
     if(squares[i]) return; //logic to prevent square from being clicked
@@ -55,11 +86,7 @@ export default function Board() {
     } else {
       nextSquares[i] = "O";
     }
-   
-    
-    
-      numOfSquares.push(i);
-      setNumberOfClicksPerSquare(numOfSquares);
+
       setxIsNext(!xIsNext);
       setSquares(nextSquares);
 
@@ -72,22 +99,28 @@ export default function Board() {
 
   return (
     <>
-       <h1>{status}</h1>
-       <div className="board-row">
-         <Square value={squares[0]} onSquareClick={() => handleClick(0)}/>
-         <Square value={squares[1]} onSquareClick={() => handleClick(1)}/>
-         <Square value={squares[2]} onSquareClick={() => handleClick(2)}/>
-      </div>
-      <div className="board-row">
-         <Square value={squares[3]} onSquareClick={() => handleClick(3)}/>
-         <Square value={squares[4]} onSquareClick={() => handleClick(4)}/>
-         <Square value={squares[5]} onSquareClick={() => handleClick(5)}/>
-      </div>    
-       <div className="board-row">
-         <Square value={squares[6]} onSquareClick={() => handleClick(6)}/>
-         <Square value={squares[7]} onSquareClick={() => handleClick(7)}/>
-         <Square value={squares[8]} onSquareClick={() => handleClick(8)}/>
-      </div>
+       <div className="container d-flex flex-column justify-content-center" id="wrapper">
+         <h1 className="align-self-center">{status}
+         </h1>
+         {confetti}
+         <div className="align-self-center mt-5">
+           <div className="board-row align-self-center squareWrap">
+             <Square value={squares[0]} onSquareClick={() => handleClick(0)}/>
+             <Square value={squares[1]} onSquareClick={() => handleClick(1)}/>
+             <Square value={squares[2]} onSquareClick={() => handleClick(2)}/>
+            </div>
+            <div className="board-row align-self-center">
+             <Square value={squares[3]} onSquareClick={() => handleClick(3)}/>
+             <Square value={squares[4]} onSquareClick={() => handleClick(4)}/>
+             <Square value={squares[5]} onSquareClick={() => handleClick(5)}/>
+            </div>
+           <div className="board-row align-self-center">
+             <Square value={squares[6]} onSquareClick={() => handleClick(6)}/>
+             <Square value={squares[7]} onSquareClick={() => handleClick(7)}/>
+             <Square value={squares[8]} onSquareClick={() => handleClick(8)}/>
+            </div>
+         </div>
+       </div>
 
     </>   
   );
