@@ -1,128 +1,56 @@
 import { useState } from "react";
-import useSound from 'use-sound';
-import ClickSound from './sound/clickSound.mp3'
-import VictorySound from './sound/winning-music.mp3'
-import Confetti from 'react-confetti';
-
-
-function Square({value, onSquareClick}) {
- 
-  const [playActive] = useSound(
-    ClickSound,
-    { volume: 0.75 }
-  );
-
-
-  return (
-  <>
-     
-    <button onMouseDown={playActive} className="square border border-5 border-white text-bg-dark" id="sqrButton" onClick={onSquareClick}>
-    {value}
-
-  </button>
-  </>
-
-  
-  );
-}
-
-
-
-function calculateWinner(nSquare) {
-   //check rows, [0, 1 , 2] [3, 4, 5] [ 6, 7 ,8]
-   let theWinner = "";
-
-   if (nSquare[0] == nSquare[1] && nSquare[1] == nSquare[2] && nSquare[0] != null) theWinner = nSquare[0];
-   else if (nSquare[3] == nSquare[4] && nSquare[4] == nSquare[5] && nSquare[3] != null) theWinner = nSquare[3];
-   else if (nSquare[6] == nSquare[7] && nSquare[7] == nSquare[8] && nSquare[6] != null) theWinner = nSquare[6];
-  
-   
- //check columns [0, 3, 6] [1, 4, 7] [2, 5, 8]
-   else if (nSquare[0] == nSquare[3] && nSquare[3] == nSquare[6] && nSquare[0] != null) theWinner = nSquare[0];
-   else if (nSquare[1] == nSquare[4] && nSquare[4] == nSquare[7] && nSquare[1] != null) theWinner = nSquare[1];
-   else if (nSquare[2] == nSquare[5] && nSquare[5] == nSquare[8] && nSquare[2] != null) theWinner = nSquare[2];
-   //check diangonals [0, 4, 8] and [2, 4, 6]
-   else if (nSquare[0] == nSquare[4] && nSquare[4] == nSquare[8] && nSquare[0] != null) theWinner = nSquare[0];
-   else if (nSquare[2] == nSquare[4] && nSquare[4] == nSquare[6] && nSquare[2] != null) theWinner = nSquare[2];
-
-
-   if (theWinner != "")
-     return  theWinner;
-   
-    return null;
-}
+import useSound from "use-sound";
+import VictorySound from "./sound/winning-music.mp3";
+import Confetti from "react-confetti";
+import calculateWinner from "./CalculateWinner";
+import BoardRow from "./BoardRow";
 
 export default function Board() {
   const [squares, setSquares] = useState(new Array(9).fill(null));
   const [xIsNext, setxIsNext] = useState(true);
-  const [playVictory] = useSound(
-    VictorySound,
-    { volume: 0.75 }
-  );
-  
+  const [playVictory] = useSound(VictorySound, { volume: 0.75 });
 
   let winner = calculateWinner(squares);
   let status;
-  let confetti = <noValue/>;
-  let victorySound = <noValue/>
+  let confetti = <noValue />;
+
   if (winner) {
     status = "Winner: " + winner;
-    confetti = <Confetti/>;
+    confetti = <Confetti />;
     playVictory();
-   
   } else {
     status = "Next player: " + (xIsNext ? "X" : "O");
   }
 
-  function handleClick (i) {
+  function handleClick(i) {
     const nextSquares = squares.slice();
 
+    if (squares[i]) return; //logic to prevent square from being clicked
 
-    if(squares[i]) return; //logic to prevent square from being clicked
-
-    if(xIsNext) {
-     
+    if (xIsNext) {
       nextSquares[i] = "X";
     } else {
       nextSquares[i] = "O";
     }
 
-      setxIsNext(!xIsNext);
-      setSquares(nextSquares);
-
-      if(winner) {
-        return;
-      }
-    
-
+    setxIsNext(!xIsNext);
+    setSquares(nextSquares);
   }
 
   return (
     <>
-       <div className="container d-flex flex-column justify-content-center" id="wrapper">
-         <h1 className="align-self-center">{status}
-         </h1>
-         {confetti}
-         <div className="align-self-center mt-5">
-           <div className="board-row align-self-center squareWrap">
-             <Square value={squares[0]} onSquareClick={() => handleClick(0)}/>
-             <Square value={squares[1]} onSquareClick={() => handleClick(1)}/>
-             <Square value={squares[2]} onSquareClick={() => handleClick(2)}/>
-            </div>
-            <div className="board-row align-self-center">
-             <Square value={squares[3]} onSquareClick={() => handleClick(3)}/>
-             <Square value={squares[4]} onSquareClick={() => handleClick(4)}/>
-             <Square value={squares[5]} onSquareClick={() => handleClick(5)}/>
-            </div>
-           <div className="board-row align-self-center">
-             <Square value={squares[6]} onSquareClick={() => handleClick(6)}/>
-             <Square value={squares[7]} onSquareClick={() => handleClick(7)}/>
-             <Square value={squares[8]} onSquareClick={() => handleClick(8)}/>
-            </div>
-         </div>
-       </div>
-
-    </>   
+      <div
+        className="container d-flex flex-column justify-content-center"
+        id="wrapper"
+      >
+        <h1 className="align-self-center">{status}</h1>
+        {confetti}
+        <div className="align-self-center mt-5">
+          <BoardRow index={0} squares={squares} handleClick={handleClick} />
+          <BoardRow index={3} squares={squares} handleClick={handleClick} />
+          <BoardRow index={6} squares={squares} handleClick={handleClick} />
+        </div>
+      </div>
+    </>
   );
 }
-

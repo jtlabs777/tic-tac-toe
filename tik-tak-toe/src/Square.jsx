@@ -1,7 +1,9 @@
-import ClickSound from './sound/clickSound.mp3'
+import ClickSound from './sound/clickSound.mp3';
+import useSound from 'use-sound';;
 
 export default function Square({value, onSquareClick}) {
- 
+
+
     const [playActive] = useSound(
       ClickSound,
       { volume: 0.75 }
